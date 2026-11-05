@@ -243,7 +243,6 @@ body.is-dragging { cursor: grabbing; user-select: none; -webkit-user-select: non
 .chart-tip .tt-dot { width: 12px; height: 12px; border-radius: 4px; flex: 0 0 auto; }
 .chart-tip .tt-group { font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-soft); margin: 2px 0 2px 20px; }
 .chart-tip .tt-line { color: var(--ink-soft); font-weight: 400; margin-top: 2px; }
-.chart-tip .tt-scope { font-weight: 300; }
 .chart-tip .tt-after { font-weight: 800; font-size: .98rem; color: var(--primary); margin-top: 6px; }
 .donut-center-label { font-size: 9px; font-weight: 600; fill: var(--ink-soft); letter-spacing: .08em; text-transform: uppercase; }
 .donut-center-value { font-size: 15px; font-weight: 800; fill: var(--ink); }
