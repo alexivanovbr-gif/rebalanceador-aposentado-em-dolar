@@ -114,6 +114,13 @@
     return positive.map(function (v) { return v * factor; });
   }
 
+  /** % de cada item depois das compras sugeridas: (posição + valor do aporte) / total após compras. */
+  function setAfterPct(items, totalAfter) {
+    items.forEach(function (it) {
+      it.afterPct = share(it.position + (it.value !== undefined ? it.value : it.used), totalAfter);
+    });
+  }
+
   /**
    * Itens 4 e 5: distribui o Disponível da classe entre seus ativos.
    */
@@ -146,6 +153,7 @@
     });
 
     if (available <= EPS || eligible.length === 0) {
+      setAfterPct(results, clsPos);
       return { assets: results, used: 0, balance: available };
     }
 
@@ -211,6 +219,7 @@
 
     if (Math.abs(leftover) < MONEY_EPS) leftover = 0;
     var used = sum(results.map(function (r) { return r.value; }));
+    setAfterPct(results, clsPos + used);
     return { assets: results, used: used, balance: leftover };
   }
 
@@ -254,6 +263,7 @@
     });
 
     var used = sum(classResults.map(function (c) { return c.used; }));
+    setAfterPct(classResults, total + used);
     var balance = aporte - used;
     if (Math.abs(balance) < MONEY_EPS) balance = 0;
 

@@ -335,6 +335,31 @@ test('propriedade: em carteiras aleatórias, Usado + Saldo = aporte e nada é ne
   }
 });
 
+test('% com o aporte considera as compras sugeridas', () => {
+  const pf = {
+    fx: 5, aporte: 1000,
+    classes: [
+      { id: 'A', ideal: 50, assets: [cash('a1', 900, 50), cash('a2', 100, 50)] },
+      { id: 'B', ideal: 50, assets: [{ id: 'b1', currency: 'BRL', shares: 0, price: 300, ideal: 100, fraction: false }] }
+    ]
+  };
+  const r = Calc.compute(pf);
+  const A = byId(r, 'A');
+  const B = byId(r, 'B');
+  // Após aporte 2000: A disponível 0, B disponível 1000. B compra 3 cotas (900), saldo 100.
+  close(A.used, 0);
+  close(B.used, 900);
+  close(A.afterPct, 1000 / 1900);
+  close(B.afterPct, 900 / 1900);
+  close(A.afterPct + B.afterPct, 1);
+  // Dentro da classe: % com o aporte usa a posição da classe após as compras.
+  close(A.assets[0].afterPct, 0.9);
+  close(B.assets[0].afterPct, 1);
+  // Sem aporte, % com o aporte é igual ao % atual.
+  const r0 = Calc.compute({ ...pf, aporte: 0 });
+  r0.classes.forEach((c) => close(c.afterPct, c.currentPct));
+});
+
 test('distribute: pesos todos zero usam divisão igual', () => {
   const out = Calc.distribute([{ weight: 0, position: 0 }, { weight: 0, position: 0 }], 100);
   close(out[0], 50);

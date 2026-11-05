@@ -227,10 +227,24 @@ body.is-dragging { cursor: grabbing; user-select: none; -webkit-user-select: non
   font-weight: 600; font-size: .85rem; cursor: pointer; color: var(--ink);
 }
 .seg button[aria-pressed="true"] { background: var(--primary); color: #fff; }
-.donut-wrap { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; justify-items: center; }
-.donut { width: 100%; max-width: 260px; height: auto; display: block; }
-.donut .seg-arc { transition: opacity .15s; }
-.donut .seg-arc:hover { opacity: .8; }
+.donut-wrap { position: relative; display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; justify-items: center; }
+.donut { width: 100%; max-width: 260px; height: auto; display: block; overflow: visible; }
+.donut .seg-arc { transition: opacity .15s, stroke-width .15s; cursor: pointer; outline: none; }
+.donut.has-hover .seg-arc { opacity: .3; }
+.donut.has-hover .seg-arc.is-hover { opacity: 1; stroke-width: 36; }
+.legend li[data-slice] { cursor: default; border-radius: 6px; }
+.legend li[data-slice]:hover { background: var(--soft); }
+.chart-tip {
+  position: absolute; z-index: 5; pointer-events: none; min-width: 210px; max-width: 270px;
+  background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px;
+  box-shadow: 0 10px 30px rgba(10, 10, 60, .16); font-size: .8rem; line-height: 1.45;
+}
+.chart-tip .tt-title { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: .98rem; color: var(--ink); }
+.chart-tip .tt-dot { width: 12px; height: 12px; border-radius: 4px; flex: 0 0 auto; }
+.chart-tip .tt-group { font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-soft); margin: 2px 0 2px 20px; }
+.chart-tip .tt-line { color: var(--ink-soft); font-weight: 400; margin-top: 2px; }
+.chart-tip .tt-scope { font-weight: 300; }
+.chart-tip .tt-after { font-weight: 800; font-size: .98rem; color: var(--primary); margin-top: 6px; }
 .donut-center-label { font-size: 9px; font-weight: 600; fill: var(--ink-soft); letter-spacing: .08em; text-transform: uppercase; }
 .donut-center-value { font-size: 15px; font-weight: 800; fill: var(--ink); }
 .legend {
