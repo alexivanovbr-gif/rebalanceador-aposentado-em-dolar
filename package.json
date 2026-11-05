@@ -1,0 +1,10 @@
+{
+  "name": "rebalanceador-aposentado-em-dolar",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Rebalanceamento de carteira por aporte do método Investidor Aposentado",
+  "scripts": {
+    "test": "node --test tests/*.test.js"
+  },
+  "license": "MIT"
+}
