@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rebalanceador por Aporte | Investidor Aposentado</title>
+  <meta name="description" content="Ferramenta educacional para calcular o rebalanceamento de carteira por aporte, pelo método Investidor Aposentado.">
+  <meta name="theme-color" content="#0000E7">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner wrap">
+      <a class="brand" href="./" aria-label="Investidor Aposentado">
+        <img id="logoImg" class="brand-img" alt="Investidor Aposentado" hidden>
+        <span id="logoText" class="brand-text"><span class="brand-light">INVESTIDOR</span><span class="brand-bold">APOSENTADO</span></span>
+      </a>
+      <div class="topbar-tools">
+        <label class="pf-select">
+          <span class="sr-only">Carteira</span>
+          <select id="pfSelect" aria-label="Selecionar carteira"></select>
+        </label>
+        <div class="tool-group" role="group" aria-label="Carteiras">
+          <button class="btn-top" data-action="pf-new" title="Nova carteira">Nova</button>
+          <button class="btn-top" data-action="pf-rename" title="Renomear carteira">Renomear</button>
+          <button class="btn-top" data-action="pf-delete" title="Excluir carteira">Excluir</button>
+        </div>
+        <div class="tool-group" role="group" aria-label="Arquivo">
+          <button class="btn-top" data-action="import" title="Importar carteiras de um arquivo JSON">Importar</button>
+          <button class="btn-top btn-top-accent" data-action="export" title="Exportar carteiras para um arquivo JSON">Exportar</button>
+          <input type="file" id="importFile" accept="application/json,.json" hidden>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="disclaimer" role="note">
+    <div class="wrap"><strong>Ferramenta educacional de cálculo.</strong> Não é recomendação de investimento. Os dados ficam salvos apenas neste navegador.</div>
+  </div>
+
+  <main id="app" class="wrap">
+    <div class="intro">
+      <h1>Rebalanceamento por aporte</h1>
+      <p class="subtitle">Descubra onde colocar o próximo aporte para aproximar a carteira da alocação ideal, sem vender nada.</p>
+    </div>
+
+    <div class="grid-top">
+      <section class="card" id="summary" aria-labelledby="summaryTitle"></section>
+      <section class="card" id="chart" aria-labelledby="chartTitle"></section>
+    </div>
+
+    <section class="strip" id="strip" aria-label="Aporte"></section>
+
+    <section id="classCards" aria-label="Classes"></section>
+
+    <section class="card" id="aporteSummary" aria-labelledby="aporteSummaryTitle"></section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <p><strong>Aviso:</strong> esta é uma ferramenta educacional de cálculo e não constitui recomendação de investimento. Preços, cotas e cotação são digitados por você. Nenhum dado é enviado a servidores: tudo fica no armazenamento local do seu navegador.</p>
+      <p class="muted">Método Investidor Aposentado</p>
+    </div>
+  </footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/calc.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
