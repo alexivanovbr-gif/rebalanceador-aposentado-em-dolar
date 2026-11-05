@@ -200,7 +200,7 @@
       p.classes.forEach(function (c) {
         var cr = resById[c.id];
         if (cr.position > 0) {
-          slices.push({ name: c.name, value: cr.position, color: c.color, ideal: cr.idealPct, current: cr.currentPct, after: cr.afterPct, scope: 'na carteira' });
+          slices.push({ name: c.name, value: cr.position, color: c.color, ideal: cr.idealPct, current: cr.currentPct, after: cr.afterPct });
         }
       });
     } else {
@@ -210,7 +210,7 @@
         c.assets.forEach(function (a, i) {
           var ar = cr.assets[i];
           if (ar.position > 0) {
-            slices.push({ name: a.ticker, value: ar.position, color: shade(c.color, n > 1 ? (i / n) * 0.6 : 0), group: c.name, ideal: ar.idealPct, current: ar.currentPct, after: ar.afterPct, scope: 'na classe' });
+            slices.push({ name: a.ticker, value: ar.position, color: shade(c.color, n > 1 ? (i / n) * 0.6 : 0), group: c.name, ideal: ar.idealPct, current: ar.currentPct, after: ar.afterPct });
           }
         });
       });
@@ -260,7 +260,7 @@
   function tipHTML(s) {
     return '<div class="tt-title"><span class="tt-dot" style="background:' + esc(s.color) + '"></span><span>' + esc(s.name) + '</span></div>' +
       (s.group ? '<div class="tt-group">' + esc(s.group) + '</div>' : '') +
-      '<div class="tt-line">Ideal: ' + pct2(s.ideal) + ' | Atual: ' + pct2(s.current) + ' <span class="tt-scope">' + s.scope + '</span></div>' +
+      '<div class="tt-line">Ideal: ' + pct2(s.ideal) + ' | Atual: ' + pct2(s.current) + '</div>' +
       '<div class="tt-line">Posição: ' + money(s.value) + '</div>' +
       (chartHasAporte ? '<div class="tt-after">Com o aporte: ' + pct2(s.after) + '</div>' : '');
   }
