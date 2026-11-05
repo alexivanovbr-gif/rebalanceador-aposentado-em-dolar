@@ -82,7 +82,7 @@ Os testes também rodam automaticamente no GitHub Actions a cada push ([`.github
 
 ## Logotipo
 
-Coloque um arquivo `logo.png` na raiz do repositório e ele aparece no cabeçalho, sobre o fundo azul royal. Se o arquivo não existir, o cabeçalho mostra o texto "INVESTIDOR APOSENTADO" estilizado. Uma altura de 96 px (exibida em 48 px) com fundo transparente fica bem.
+Coloque um arquivo `logo.png` na raiz do repositório e ele aparece no cabeçalho, sobre o fundo azul royal. Se o arquivo não existir, o cabeçalho mostra o texto "INVESTIDOR APOSENTADO" estilizado. O logo é exibido com 60 px de altura no computador e 46 px no celular. Use fundo transparente e **sem margens vazias** em volta do desenho, pois a margem também conta na altura e deixa o logo pequeno. Uma imagem com cerca de 200 px de altura já fica nítida em telas de alta resolução.
 
 ## Publicar no GitHub Pages
 
