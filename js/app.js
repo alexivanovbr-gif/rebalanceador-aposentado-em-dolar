@@ -189,27 +189,37 @@
     return 'rgb(' + mix(rr) + ',' + mix(gg) + ',' + mix(bb) + ')';
   }
 
+  /* Fatias do gráfico atual, usadas pela dica ao passar o mouse */
+  var chartSlices = [];
+  var chartHasAporte = false;
+
   function chartHTML(p, r, resById) {
     var mode = state.chartMode === 'assets' ? 'assets' : 'classes';
     var slices = [];
     if (mode === 'classes') {
       p.classes.forEach(function (c) {
-        var v = resById[c.id].position;
-        if (v > 0) slices.push({ name: c.name, value: v, color: c.color });
+        var cr = resById[c.id];
+        if (cr.position > 0) {
+          slices.push({ name: c.name, value: cr.position, color: c.color, ideal: cr.idealPct, current: cr.currentPct, after: cr.afterPct, scope: 'na carteira' });
+        }
       });
     } else {
       p.classes.forEach(function (c) {
         var cr = resById[c.id];
         var n = c.assets.length;
         c.assets.forEach(function (a, i) {
-          var v = cr.assets[i].position;
-          if (v > 0) slices.push({ name: a.ticker, value: v, color: shade(c.color, n > 1 ? (i / n) * 0.6 : 0), group: c.name });
+          var ar = cr.assets[i];
+          if (ar.position > 0) {
+            slices.push({ name: a.ticker, value: ar.position, color: shade(c.color, n > 1 ? (i / n) * 0.6 : 0), group: c.name, ideal: ar.idealPct, current: ar.currentPct, after: ar.afterPct, scope: 'na classe' });
+          }
         });
       });
     }
     var total = slices.reduce(function (s, x) { return s + x.value; }, 0);
+    chartSlices = slices;
+    chartHasAporte = r.used > 0;
 
-    var head = '<div class="card-head"><div><h2 id="chartTitle">Alocação atual</h2><p class="sub">Distribuição do patrimônio hoje.</p></div>' +
+    var head = '<div class="card-head"><div><h2 id="chartTitle">Alocação atual</h2><p class="sub">Passe o mouse ou toque no gráfico para ver os detalhes.</p></div>' +
       '<div class="seg" role="group" aria-label="Ver por">' +
       '<button' + actionAttrs('chart-classes') + ' aria-pressed="' + (mode === 'classes') + '">Classes</button>' +
       '<button' + actionAttrs('chart-assets') + ' aria-pressed="' + (mode === 'assets') + '">Ativos</button></div></div>';
@@ -218,27 +228,99 @@
 
     var R = 70, C = 2 * Math.PI * R, offset = 0;
     var gap = slices.length > 1 ? 1.2 : 0;
-    var arcs = slices.map(function (s) {
+    var arcs = slices.map(function (s, i) {
       var len = (s.value / total) * C;
       var draw = Math.max(len - gap, 0.01);
-      var arc = '<circle class="seg-arc" cx="100" cy="100" r="' + R + '" fill="none" stroke="' + esc(s.color) + '" stroke-width="30"' +
+      s.share = s.value / total;
+      s.mid = ((offset + len / 2) / C) * 2 * Math.PI - Math.PI / 2;
+      var arc = '<circle class="seg-arc" data-slice="' + i + '" tabindex="0" cx="100" cy="100" r="' + R + '" fill="none" stroke="' + esc(s.color) + '" stroke-width="30"' +
         ' stroke-dasharray="' + draw.toFixed(3) + ' ' + (C - draw).toFixed(3) + '" stroke-dashoffset="' + (-offset).toFixed(3) + '"' +
-        ' transform="rotate(-90 100 100)"><title>' + esc((s.group ? s.group + ': ' : '') + s.name + ' ' + pct(s.value / total) + ' (' + money(s.value) + ')') + '</title></circle>';
+        ' transform="rotate(-90 100 100)" aria-label="' + esc((s.group ? s.group + ': ' : '') + s.name + ', ' + pct(s.share) + ' do patrimônio') + '"></circle>';
       offset += len;
       return arc;
     }).join('');
 
-    var svg = '<svg class="donut" viewBox="0 0 200 200" role="img" aria-label="Gráfico de rosca da alocação atual por ' + (mode === 'classes' ? 'classes' : 'ativos') + '">' +
+    var svg = '<svg class="donut" viewBox="0 0 200 200" role="group" aria-label="Gráfico de rosca da alocação atual por ' + (mode === 'classes' ? 'classes' : 'ativos') + '">' +
       '<circle cx="100" cy="100" r="' + R + '" fill="none" stroke="#EEF0FD" stroke-width="30"/>' + arcs +
       '<text x="100" y="94" text-anchor="middle" class="donut-center-label">Patrimônio</text>' +
       '<text x="100" y="114" text-anchor="middle" class="donut-center-value">' + esc(compactMoney(total)) + '</text></svg>';
 
-    var legend = '<ul class="legend">' + slices.map(function (s) {
-      return '<li title="' + esc(money(s.value)) + '"><span class="dot" style="background:' + esc(s.color) + '"></span><span class="name">' + esc(s.name) +
-        '</span><span class="val">' + pct(s.value / total) + '</span></li>';
+    var legend = '<ul class="legend">' + slices.map(function (s, i) {
+      return '<li data-slice="' + i + '"><span class="dot" style="background:' + esc(s.color) + '"></span><span class="name">' + esc(s.name) +
+        '</span><span class="val">' + pct(s.share) + '</span></li>';
     }).join('') + '</ul>';
 
-    return head + '<div class="donut-wrap">' + svg + legend + '</div>';
+    return head + '<div class="donut-wrap">' + svg + legend + '<div class="chart-tip" id="chartTip" role="tooltip" hidden></div></div>';
+  }
+
+  function pct2(frac) {
+    return ((frac || 0) * 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
+  }
+
+  function tipHTML(s) {
+    return '<div class="tt-title"><span class="tt-dot" style="background:' + esc(s.color) + '"></span><span>' + esc(s.name) + '</span></div>' +
+      (s.group ? '<div class="tt-group">' + esc(s.group) + '</div>' : '') +
+      '<div class="tt-line">Ideal: ' + pct2(s.ideal) + ' | Atual: ' + pct2(s.current) + ' <span class="tt-scope">' + s.scope + '</span></div>' +
+      '<div class="tt-line">Posição: ' + money(s.value) + '</div>' +
+      (chartHasAporte ? '<div class="tt-after">Com o aporte: ' + pct2(s.after) + '</div>' : '');
+  }
+
+  /* Mostra a dica da fatia i. Com coordenadas do ponteiro, posiciona junto ao cursor; sem elas, no meio da fatia. */
+  function showChartTip(i, clientX, clientY) {
+    var s = chartSlices[i];
+    var tip = document.getElementById('chartTip');
+    var svg = document.querySelector('#chart .donut');
+    if (!s || !tip || !svg) return;
+    var wrap = tip.parentElement;
+    svg.classList.add('has-hover');
+    Array.prototype.forEach.call(svg.querySelectorAll('.seg-arc'), function (el) {
+      el.classList.toggle('is-hover', el.getAttribute('data-slice') === String(i));
+    });
+    if (tip.dataset.slice !== String(i)) {
+      tip.innerHTML = tipHTML(s);
+      tip.dataset.slice = String(i);
+    }
+    tip.hidden = false;
+
+    var wr = wrap.getBoundingClientRect();
+    var x, y;
+    if (clientX == null) {
+      var sr = svg.getBoundingClientRect();
+      var scale = sr.width / 200;
+      x = sr.left - wr.left + (100 + 85 * Math.cos(s.mid)) * scale;
+      y = sr.top - wr.top + (100 + 85 * Math.sin(s.mid)) * scale;
+    } else {
+      x = clientX - wr.left;
+      y = clientY - wr.top;
+    }
+    var tw = tip.offsetWidth, th = tip.offsetHeight, pad = 14;
+    var left = x + pad;
+    if (left + tw > wr.width) left = x - tw - pad;
+    if (left < 0) left = Math.max(0, Math.min(wr.width - tw, x - tw / 2));
+    var top = y + pad;
+    if (top + th > wr.height) top = Math.max(0, y - th - pad);
+    tip.style.left = left + 'px';
+    tip.style.top = top + 'px';
+  }
+
+  function hideChartTip() {
+    var tip = document.getElementById('chartTip');
+    var svg = document.querySelector('#chart .donut');
+    if (tip) { tip.hidden = true; tip.dataset.slice = ''; }
+    if (svg) {
+      svg.classList.remove('has-hover');
+      Array.prototype.forEach.call(svg.querySelectorAll('.is-hover'), function (el) { el.classList.remove('is-hover'); });
+    }
+  }
+
+  function onChartPointer(e) {
+    if (drag) return;
+    var arc = e.target.closest && e.target.closest('#chart .seg-arc');
+    if (arc) { showChartTip(Number(arc.getAttribute('data-slice')), e.clientX, e.clientY); return; }
+    var item = e.target.closest && e.target.closest('#chart .legend li');
+    if (item) { showChartTip(Number(item.getAttribute('data-slice'))); return; }
+    var tip = document.getElementById('chartTip');
+    if (tip && !tip.hidden) hideChartTip();
   }
 
   function compactMoney(v) {
@@ -676,6 +758,15 @@
   document.addEventListener('pointerup', onPointerUp);
   document.addEventListener('pointercancel', onPointerUp);
   document.addEventListener('keydown', onKeyDown);
+  document.addEventListener('pointermove', onChartPointer);
+  document.addEventListener('pointerdown', onChartPointer);
+  document.addEventListener('focusin', function (e) {
+    var arc = e.target.closest && e.target.closest('#chart .seg-arc');
+    if (arc) showChartTip(Number(arc.getAttribute('data-slice')));
+  });
+  document.addEventListener('focusout', function (e) {
+    if (e.target.closest && e.target.closest('#chart .seg-arc')) hideChartTip();
+  });
   window.addEventListener('storage', function (e) {
     if (e.key === Store.STORAGE_KEY) { state = Store.load(storage); render(); }
   });
